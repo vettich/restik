@@ -1,5 +1,8 @@
 # restik
 
+[![godoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/vettich/restik)
+[![license](https://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/vettich/restik/master/MIT-LICENSE)
+
 `restik` a Go library that provides an easy and convenient way to implement a REST service.
 
 # Import
