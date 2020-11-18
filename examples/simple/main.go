@@ -4,7 +4,8 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"restik"
+
+	"github.com/vettich/restik"
 )
 
 type echoArg struct {

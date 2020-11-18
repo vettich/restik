@@ -1,4 +1,4 @@
-module restik
+module github.com/vettich/restik
 
 go 1.15
 
