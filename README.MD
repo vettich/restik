@@ -7,7 +7,7 @@
 
 # Import
 
-`import "github.com/vettich/restik`
+`import "github.com/vettich/restik"`
 
 # Usage
 
