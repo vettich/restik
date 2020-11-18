@@ -32,8 +32,8 @@ func (rts routes) find(method, endpoint string) (*Route, bool) {
 
 // Route is route of rest
 type Route struct {
-	method   string
-	endpoint string
+	Method   string
+	Endpoint string
 
 	handlerType routeHandlerType
 	httpHandler httpHandler
@@ -56,8 +56,8 @@ type Route struct {
 func NewRoute(method, endpoint string, fn interface{}) *Route {
 	if httpHndl, ok := fn.(func(http.ResponseWriter, *http.Request)); ok {
 		return &Route{
-			method:      method,
-			endpoint:    endpoint,
+			Method:      method,
+			Endpoint:    endpoint,
 			handlerType: httpHandlerType,
 			httpHandler: httpHndl,
 		}
@@ -65,8 +65,8 @@ func NewRoute(method, endpoint string, fn interface{}) *Route {
 
 	if restHndl, ok := fn.(func(ResponseWriter, *Request)); ok {
 		return &Route{
-			method:      method,
-			endpoint:    endpoint,
+			Method:      method,
+			Endpoint:    endpoint,
 			handlerType: restHandlerType,
 			restHandler: restHndl,
 		}
@@ -75,8 +75,8 @@ func NewRoute(method, endpoint string, fn interface{}) *Route {
 	fnTypeOf := reflect.TypeOf(fn)
 	args, argsIsPtr := parseInput(fnTypeOf)
 	return &Route{
-		method:      method,
-		endpoint:    endpoint,
+		Method:      method,
+		Endpoint:    endpoint,
 		inputCount:  fnTypeOf.NumIn(),
 		outputCount: fnTypeOf.NumOut(),
 		args:        args,
@@ -123,33 +123,8 @@ func parseOutput(fnType reflect.Type) reflect.Type {
 	return nil
 }
 
-// Get return new route by GET method
-func Get(endpoint string, fn interface{}) *Route {
-	return NewRoute("GET", endpoint, fn)
-}
-
-// Post return new route by POST method
-func Post(endpoint string, fn interface{}) *Route {
-	return NewRoute("POST", endpoint, fn)
-}
-
-// Delete return new route by DELETE method
-func Delete(endpoint string, fn interface{}) *Route {
-	return NewRoute("DELETE", endpoint, fn)
-}
-
-// Patch return new route by PATCH method
-func Patch(endpoint string, fn interface{}) *Route {
-	return NewRoute("PATCH", endpoint, fn)
-}
-
-// Put return new route by PUT method
-func Put(endpoint string, fn interface{}) *Route {
-	return NewRoute("PUT", endpoint, fn)
-}
-
 func (rt Route) getKey() string {
-	return fmt.Sprintf("%s:%s", rt.method, rt.endpoint)
+	return fmt.Sprintf("%s:%s", rt.Method, rt.Endpoint)
 }
 
 func (rt Route) exec(hr *http.Request) *serveReply {

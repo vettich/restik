@@ -31,13 +31,11 @@ func loggg() {
 }
 
 func main() {
-	router := restik.NewRouter()
-	router.Add(
-		restik.Post("/echo", echo),
-		restik.Get("/log", loggg),
-		restik.Get("/http", httpFn),
-		restik.Get("/src/{you}", restFn),
-	)
-	http.Handle("/", router.Handler())
+	r := restik.NewRouter()
+	r.Post("/echo", echo)
+	r.Get("/log", loggg)
+	r.Get("/http", httpFn)
+	r.Get("/src/{you}", restFn)
+	http.Handle("/", r.Handler())
 	http.ListenAndServe("0.0.0.0:3303", nil)
 }
