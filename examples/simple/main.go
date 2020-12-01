@@ -8,11 +8,15 @@ import (
 	"github.com/vettich/restik"
 )
 
-type echoArg struct {
+func echo(req *restik.Request) string {
+	return req.Vars.String("msg")
+}
+
+type helloArg struct {
 	Value string `json:"value"`
 }
 
-func echo(arg echoArg) (string, error) {
+func hello(arg helloArg) (string, error) {
 	if arg.Value == "" {
 		return "", errors.New("value is empty")
 	}
@@ -33,7 +37,8 @@ func loggg() {
 
 func main() {
 	r := restik.NewRouter()
-	r.Post("/echo", echo)
+	r.Get("/echo/{msg}", echo)
+	r.Post("/hello", hello)
 	r.Get("/log", loggg)
 	r.Get("/http", httpFn)
 	r.Get("/src/{you}", restFn)
