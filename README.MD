@@ -1,6 +1,6 @@
 # restik [![godoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/vettich/restik) [![license](https://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/vettich/restik/master/MIT-LICENSE)
 
-<p align="center"><img src="docs/img/logo.png" width="300"></p>
+<p align="center"><img src="docs/images/logo.png" width="300"></p>
 
 `restik` a Go library that provides an easy and convenient way to implement a REST service.
 
@@ -65,7 +65,7 @@ func main() {
 
 Request:
 ```bash
-curl -XPOST -d '{"value":"world!"}' "localhost:8000/hello"
+$ curl -XPOST -d '{"value":"world!"}' "localhost:8000/hello"
 ```
 
 Response:
