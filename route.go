@@ -12,9 +12,9 @@ import (
 type routeHandlerType int
 
 const (
-	httpHandlerType routeHandlerType = iota
+	customHandlerType routeHandlerType = iota
+	httpHandlerType
 	restHandlerType
-	customHandlerType
 )
 
 type (
@@ -99,7 +99,7 @@ func parseInput(fnType reflect.Type) (reflect.Type, bool) {
 		isPtr = true
 		elem = elem.Elem()
 	}
-	if elem.String() != "rest.Request" {
+	if elem.String() != "restik.Request" {
 		return elem, isPtr
 	}
 	return nil, false
@@ -117,18 +117,15 @@ func parseOutput(fnType reflect.Type) reflect.Type {
 	if elem.Kind() == reflect.Ptr {
 		elem = elem.Elem()
 	}
-	if elem.String() != "rest.Request" {
-		return elem
-	}
-	return nil
+	return elem
 }
 
 func (rt Route) getKey() string {
 	return fmt.Sprintf("%s:%s", rt.Method, rt.Endpoint)
 }
 
-func (rt Route) exec(hr *http.Request) *serveReply {
-	fnArgs, err := rt.getArgs(hr)
+func (rt Route) exec(rr *Request) *serveReply {
+	fnArgs, err := rt.getArgs(rr)
 	if err != nil {
 		return &serveReply{Error: FromAnotherError(err)}
 	}
@@ -160,21 +157,21 @@ func (rt Route) exec(hr *http.Request) *serveReply {
 	return &res
 }
 
-func (rt Route) getArgs(hr *http.Request) ([]reflect.Value, error) {
+func (rt *Route) getArgs(rr *Request) ([]reflect.Value, error) {
 	var fnArgs []reflect.Value
-	var req = reflect.ValueOf(NewRequest(hr))
+	var req = reflect.ValueOf(rr)
 
 	var argsVal reflect.Value
 	if rt.args != nil {
 		argsVal = reflect.New(rt.args)
-		queries := hr.URL.Query()
+		queries := rr.URL.Query()
 		query := queries.Get("query")
 		var queryRaw []byte
 		if query != "" {
 			unQuery, _ := url.QueryUnescape(query)
 			queryRaw = []byte(unQuery)
-		} else if hr.ContentLength > 0 {
-			queryRaw, _ = ioutil.ReadAll(hr.Body)
+		} else if rr.ContentLength > 0 {
+			queryRaw, _ = ioutil.ReadAll(rr.Body)
 		}
 		if queryRaw != nil && len(queryRaw) > 0 {
 			err := json.Unmarshal(queryRaw, argsVal.Interface())

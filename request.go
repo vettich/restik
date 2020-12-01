@@ -6,14 +6,16 @@ import "net/http"
 type Request struct {
 	Vars    Vars
 	Headers http.Header
-	Request *http.Request
+	Route   *Route
+	*http.Request
 }
 
 // NewRequest create new Request instance
-func NewRequest(r *http.Request) *Request {
+func NewRequest(r *http.Request, rt *Route) *Request {
 	return &Request{
 		NewVars(r),
 		r.Header,
+		rt,
 		r,
 	}
 }

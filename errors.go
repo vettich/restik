@@ -32,7 +32,12 @@ func FromAnotherError(err error) *Error {
 
 // NewBadRequestError return error with BadRequest status
 func NewBadRequestError(args ...string) *Error {
-	return NewError(parseErrorArgs(http.StatusBadRequest, args...))
+	return NewError(parseErrorArgs(http.StatusBadRequest, "bad_request", "Bad request", args...))
+}
+
+// NewNotFoundError return error with BadRequest status
+func NewNotFoundError(args ...string) *Error {
+	return NewError(parseErrorArgs(http.StatusNotFound, "not_found", "Not found", args...))
 }
 
 // Error implement error interface
@@ -55,8 +60,8 @@ func (err Error) GetMsg() string {
 	return err.Msg
 }
 
-func parseErrorArgs(status int, args ...string) (int, string, string) {
-	code, msg := "bad_request", "Bad request"
+func parseErrorArgs(status int, defaultCode, defaultMsg string, args ...string) (int, string, string) {
+	code, msg := defaultCode, defaultMsg
 	if len(args) == 1 {
 		msg = args[0]
 	} else if len(args) == 2 {

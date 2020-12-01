@@ -8,16 +8,24 @@ import (
 
 // Router is main router in rest
 type Router struct {
-	routes    routes
-	muxRouter *mux.Router
+	routes                  routes
+	muxRouter               *mux.Router
+	middlewares             []Middleware
+	notFoundHandler         func(ResponseWriter, *Request)
+	methodNotAllowedHandler func(ResponseWriter, *Request)
 }
 
 // NewRouter create new Router
 func NewRouter() *Router {
-	return &Router{
-		routes:    routes{},
-		muxRouter: mux.NewRouter(),
+	r := &Router{
+		routes:      routes{},
+		muxRouter:   mux.NewRouter(),
+		middlewares: make([]Middleware, 0),
 	}
+	r.muxRouter.Handle("/", r)
+	r.muxRouter.MethodNotAllowedHandler = methodNotAllowedHandler{r}
+	r.muxRouter.NotFoundHandler = notFoundHandler{r}
+	return r
 }
 
 // Handler return http handler
@@ -69,32 +77,82 @@ func (r *Router) Put(endpoint string, fn interface{}) *Route {
 	return rt
 }
 
+// SetNotFoundHandlerFunc set not found handler
+func (r *Router) SetNotFoundHandlerFunc(handler func(ResponseWriter, *Request)) {
+	r.notFoundHandler = handler
+}
+
+// SetMethodNotAllowedHandlerFunc set not found handler
+func (r *Router) SetMethodNotAllowedHandlerFunc(handler func(ResponseWriter, *Request)) {
+	r.methodNotAllowedHandler = handler
+}
+
+func (r *Router) Use(middlewares ...Middleware) *Router {
+	r.middlewares = append(r.middlewares, middlewares...)
+	return r
+}
+
 func (r *Router) ServeHTTP(hw http.ResponseWriter, hr *http.Request) {
-	rt, ok := r.getCurrentRoute(hr)
-	if !ok {
-		writeError(hw, ErrNotFoundEndpoint)
+	handle := r.routeHandler
+	for i := len(r.middlewares) - 1; i >= 0; i-- {
+		handle = r.middlewares[i].Middleware(handle)
+	}
+	rt, _ := r.getCurrentRoute(hr)
+	handle(NewResponseWriter(hw), NewRequest(hr, rt))
+}
+
+func (r *Router) routeHandler(rw ResponseWriter, rr *Request) {
+	if rr.Route == nil {
+		writeError(rw.ResponseWriter, ErrNotFoundEndpoint)
 		return
 	}
 
-	if rt.handlerType == httpHandlerType {
-		rt.httpHandler(hw, hr)
+	if rr.Route.handlerType == httpHandlerType {
+		rr.Route.httpHandler(rw.ResponseWriter, rr.Request)
 		return
 	}
 
-	if rt.handlerType == restHandlerType {
-		rt.restHandler(NewResponseWriter(hw), NewRequest(hr))
+	if rr.Route.handlerType == restHandlerType {
+		rr.Route.restHandler(rw, rr)
 		return
 	}
 
-	sr := rt.exec(hr)
-	writeReply(hw, sr)
+	sr := rr.Route.exec(rr)
+	writeReply(rw.ResponseWriter, sr)
 }
 
 func (r *Router) getCurrentRoute(hr *http.Request) (*Route, bool) {
-	muxRouter := mux.CurrentRoute(hr)
-	pathTemplate, err := muxRouter.GetPathTemplate()
+	muxRoute := mux.CurrentRoute(hr)
+	if muxRoute == nil {
+		return nil, false
+	}
+	pathTemplate, err := muxRoute.GetPathTemplate()
 	if err != nil {
 		return nil, false
 	}
 	return r.routes.find(hr.Method, pathTemplate)
+}
+
+type notFoundHandler struct {
+	r *Router
+}
+
+func (h notFoundHandler) ServeHTTP(hw http.ResponseWriter, hr *http.Request) {
+	if h.r.notFoundHandler != nil {
+		h.r.notFoundHandler(NewResponseWriter(hw), NewRequest(hr, nil))
+		return
+	}
+	writeError(hw, NewNotFoundError())
+}
+
+type methodNotAllowedHandler struct {
+	r *Router
+}
+
+func (h methodNotAllowedHandler) ServeHTTP(hw http.ResponseWriter, hr *http.Request) {
+	if h.r.methodNotAllowedHandler != nil {
+		h.r.methodNotAllowedHandler(NewResponseWriter(hw), NewRequest(hr, nil))
+		return
+	}
+	writeError(hw, NewError(http.StatusMethodNotAllowed, "not_allowed", "Method not allowed"))
 }
