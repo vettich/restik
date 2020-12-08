@@ -124,10 +124,11 @@ func (rt Route) getKey() string {
 	return fmt.Sprintf("%s:%s", rt.Method, rt.Endpoint)
 }
 
-func (rt Route) exec(rr *Request) *serveReply {
+func (rt Route) exec(rr *Request, rpl Reply) {
 	fnArgs, err := rt.getArgs(rr)
 	if err != nil {
-		return &serveReply{Error: FromAnotherError(err)}
+		rpl.SetError(err)
+		return
 	}
 	var resValue []reflect.Value
 	resValue = rt.fn.Call(fnArgs)
@@ -146,15 +147,14 @@ func (rt Route) exec(rr *Request) *serveReply {
 		errVal = resValue[1].Interface()
 	}
 
-	res := serveReply{}
 	if errVal != nil {
 		err, _ := errVal.(error)
-		res.Error = FromAnotherError(err)
+		rpl.SetError(err)
 	}
 	if replyVal != nil {
-		res.Response = replyVal
+		rpl.SetResponse(replyVal)
 	}
-	return &res
+	return
 }
 
 func (rt *Route) getArgs(rr *Request) ([]reflect.Value, error) {
