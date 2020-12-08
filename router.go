@@ -13,7 +13,7 @@ type Router struct {
 	middlewares             []Middleware
 	notFoundHandler         func(ResponseWriter, *Request)
 	methodNotAllowedHandler func(ResponseWriter, *Request)
-	commonReply             Reply
+	replyImpl               Reply
 }
 
 // NewRouter create new Router
@@ -22,7 +22,7 @@ func NewRouter() *Router {
 		routes:      routes{},
 		muxRouter:   mux.NewRouter(),
 		middlewares: make([]Middleware, 0),
-		commonReply: &serveReply{},
+		replyImpl:   &serveReply{},
 	}
 	r.muxRouter.Handle("/", r)
 	r.muxRouter.MethodNotAllowedHandler = methodNotAllowedHandler{r}
@@ -100,7 +100,7 @@ func (r *Router) ServeHTTP(hw http.ResponseWriter, hr *http.Request) {
 		handle = r.middlewares[i].Middleware(handle)
 	}
 	rt, _ := r.getCurrentRoute(hr)
-	handle(NewResponseWriter(hw, r.commonReply), NewRequest(hr, rt))
+	handle(NewResponseWriter(hw, r.replyImpl), NewRequest(hr, rt))
 }
 
 func (r *Router) routeHandler(rw ResponseWriter, rr *Request) {
@@ -124,7 +124,7 @@ func (r *Router) routeHandler(rw ResponseWriter, rr *Request) {
 		return
 	}
 
-	rpl := r.commonReply.New()
+	rpl := r.replyImpl.New()
 	rt.exec(rr, rpl)
 	rw.WriteReply(rpl)
 }
@@ -142,7 +142,7 @@ func (r *Router) getCurrentRoute(hr *http.Request) (*Route, bool) {
 }
 
 func (r *Router) SetCustomReply(rpl Reply) {
-	r.commonReply = rpl
+	r.replyImpl = rpl
 }
 
 type notFoundHandler struct {
@@ -151,10 +151,10 @@ type notFoundHandler struct {
 
 func (h notFoundHandler) ServeHTTP(hw http.ResponseWriter, hr *http.Request) {
 	if h.r.notFoundHandler != nil {
-		h.r.notFoundHandler(NewResponseWriter(hw, h.r.commonReply), NewRequest(hr, nil))
+		h.r.notFoundHandler(NewResponseWriter(hw, h.r.replyImpl), NewRequest(hr, nil))
 		return
 	}
-	rw := NewResponseWriter(hw, h.r.commonReply)
+	rw := NewResponseWriter(hw, h.r.replyImpl)
 	rw.WriteError(NewNotFoundError())
 }
 
@@ -164,9 +164,9 @@ type methodNotAllowedHandler struct {
 
 func (h methodNotAllowedHandler) ServeHTTP(hw http.ResponseWriter, hr *http.Request) {
 	if h.r.methodNotAllowedHandler != nil {
-		h.r.methodNotAllowedHandler(NewResponseWriter(hw, h.r.commonReply), NewRequest(hr, nil))
+		h.r.methodNotAllowedHandler(NewResponseWriter(hw, h.r.replyImpl), NewRequest(hr, nil))
 		return
 	}
-	rw := NewResponseWriter(hw, h.r.commonReply)
+	rw := NewResponseWriter(hw, h.r.replyImpl)
 	rw.WriteError(NewError(http.StatusMethodNotAllowed, "not_allowed", "Method not allowed"))
 }

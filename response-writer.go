@@ -62,8 +62,8 @@ func (w *ResponseWriter) WriteReply(rpl Reply) (int, error) {
 		return 0, err
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	if rpl.HasError() {
-		err := FromAnotherError(rpl.GetError())
+	if err := rpl.GetError(); err != nil {
+		err := FromAnotherError(err)
 		w.WriteHeader(err.GetStatus())
 	} else {
 		w.WriteHeader(http.StatusOK)
