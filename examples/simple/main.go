@@ -9,7 +9,8 @@ import (
 )
 
 func echo(req *restik.Request) string {
-	return req.Vars.String("msg")
+	msg, _ := req.Vars.String("msg")
+	return msg
 }
 
 type helloArg struct {
@@ -28,7 +29,8 @@ func httpFn(w http.ResponseWriter, r *http.Request) {
 }
 
 func restFn(w restik.ResponseWriter, r *restik.Request) {
-	w.WriteJSON(r.Vars.String("you"))
+	val, _ := r.Vars.String("you")
+	w.WriteJSON(val)
 }
 
 func loggg() {
