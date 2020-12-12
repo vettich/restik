@@ -26,72 +26,46 @@ func (vars Vars) Set(key string, value interface{}) {
 }
 
 // Int return int value from vars by key
-func (vars Vars) Int(key string) (ret int, ok bool) {
-	var v interface{}
-	v, ok = vars[key]
-	if !ok {
-		return
+func (vars Vars) Int(key string, defaultValue ...int) int {
+	i, ok := vars.Int64Ok(key)
+	if !ok && len(defaultValue) > 0 {
+		return defaultValue[0]
 	}
-	switch i := v.(type) {
-	case int:
-		ret = i
-	case int32:
-		ret = int(i)
-	case int64:
-		ret = int(i)
-	case uint:
-		ret = int(i)
-	case uint32:
-		ret = int(i)
-	case uint64:
-		ret = int(i)
-	case float32:
-		ret = int(i)
-	case float64:
-		ret = int(i)
-	case string:
-		ret, _ = strconv.Atoi(i)
-	default:
-		ok = false
-	}
-	return
+	return int(i)
+}
+
+// IntOk return int value from vars by key
+func (vars Vars) IntOk(key string) (ret int, ok bool) {
+	i, ok := vars.Int64Ok(key)
+	return int(i), ok
 }
 
 // Int32 return int32 value from vars by key
-func (vars Vars) Int32(key string) (ret int32, ok bool) {
-	var v interface{}
-	v, ok = vars[key]
-	if !ok {
-		return
+func (vars Vars) Int32(key string, defaultValue ...int32) int32 {
+	i, ok := vars.Int64Ok(key)
+	if !ok && len(defaultValue) > 0 {
+		return defaultValue[0]
 	}
-	switch i := v.(type) {
-	case int:
-		ret = int32(i)
-	case int32:
-		ret = i
-	case int64:
-		ret = int32(i)
-	case uint:
-		ret = int32(i)
-	case uint32:
-		ret = int32(i)
-	case uint64:
-		ret = int32(i)
-	case float32:
-		ret = int32(i)
-	case float64:
-		ret = int32(i)
-	case string:
-		s, _ := strconv.Atoi(i)
-		ret = int32(s)
-	default:
-		ok = false
-	}
-	return
+	return int32(i)
+}
+
+// Int32Ok return int32 value from vars by key
+func (vars Vars) Int32Ok(key string) (ret int32, ok bool) {
+	i, ok := vars.Int64Ok(key)
+	return int32(i), ok
 }
 
 // Int64 return int64 value from vars by key
-func (vars Vars) Int64(key string) (ret int64, ok bool) {
+func (vars Vars) Int64(key string, defaultValue ...int64) int64 {
+	i, ok := vars.Int64Ok(key)
+	if !ok && len(defaultValue) > 0 {
+		return defaultValue[0]
+	}
+	return i
+}
+
+// Int64Ok return int64 value from vars by key
+func (vars Vars) Int64Ok(key string) (ret int64, ok bool) {
 	var v interface{}
 	v, ok = vars[key]
 	if !ok {
@@ -124,73 +98,46 @@ func (vars Vars) Int64(key string) (ret int64, ok bool) {
 }
 
 // Uint return uint value from vars by key
-func (vars Vars) Uint(key string) (ret uint, ok bool) {
-	var v interface{}
-	v, ok = vars[key]
-	if !ok {
-		return
+func (vars Vars) Uint(key string, defaultValue ...uint) uint {
+	i, ok := vars.Uint64Ok(key)
+	if !ok && len(defaultValue) > 0 {
+		return defaultValue[0]
 	}
-	switch i := v.(type) {
-	case int:
-		ret = uint(i)
-	case int32:
-		ret = uint(i)
-	case int64:
-		ret = uint(i)
-	case uint:
-		ret = uint(i)
-	case uint32:
-		ret = uint(i)
-	case uint64:
-		ret = uint(i)
-	case float32:
-		ret = uint(i)
-	case float64:
-		ret = uint(i)
-	case string:
-		s, _ := strconv.Atoi(i)
-		ret = uint(s)
-	default:
-		ok = false
-	}
-	return
+	return uint(i)
+}
+
+// UintOk return uint value from vars by key
+func (vars Vars) UintOk(key string) (ret uint, ok bool) {
+	i, ok := vars.Uint64Ok(key)
+	return uint(i), ok
 }
 
 // Uint32 return uint32 value from vars by key
-func (vars Vars) Uint32(key string) (ret uint32, ok bool) {
-	var v interface{}
-	v, ok = vars[key]
-	if !ok {
-		return
+func (vars Vars) Uint32(key string, defaultValue ...uint32) uint32 {
+	i, ok := vars.Uint64Ok(key)
+	if !ok && len(defaultValue) > 0 {
+		return defaultValue[0]
 	}
-	switch i := v.(type) {
-	case int:
-		ret = uint32(i)
-	case int32:
-		ret = uint32(i)
-	case int64:
-		ret = uint32(i)
-	case uint:
-		ret = uint32(i)
-	case uint32:
-		ret = uint32(i)
-	case uint64:
-		ret = uint32(i)
-	case float32:
-		ret = uint32(i)
-	case float64:
-		ret = uint32(i)
-	case string:
-		s, _ := strconv.Atoi(i)
-		ret = uint32(s)
-	default:
-		ok = false
-	}
-	return
+	return uint32(i)
+}
+
+// Uint32Ok return uint32 value from vars by key
+func (vars Vars) Uint32Ok(key string) (ret uint32, ok bool) {
+	i, ok := vars.Uint64Ok(key)
+	return uint32(i), ok
 }
 
 // Uint64 return uint64 value from vars by key
-func (vars Vars) Uint64(key string) (ret uint64, ok bool) {
+func (vars Vars) Uint64(key string, defaultValue ...uint64) uint64 {
+	i, ok := vars.Uint64Ok(key)
+	if !ok && len(defaultValue) > 0 {
+		return defaultValue[0]
+	}
+	return i
+}
+
+// Uint64Ok return uint64 value from vars by key
+func (vars Vars) Uint64Ok(key string) (ret uint64, ok bool) {
 	var v interface{}
 	v, ok = vars[key]
 	if !ok {
@@ -223,7 +170,16 @@ func (vars Vars) Uint64(key string) (ret uint64, ok bool) {
 }
 
 // String return string value from vars by key
-func (v Vars) String(key string) (string, bool) {
+func (v Vars) String(key string, defaultValue ...string) string {
+	s, ok := v.StringOk(key)
+	if !ok && len(defaultValue) > 0 {
+		return defaultValue[0]
+	}
+	return s
+}
+
+// StringOk return string value from vars by key
+func (v Vars) StringOk(key string) (string, bool) {
 	val, ok := v[key]
 	if !ok {
 		return "", false

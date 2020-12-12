@@ -36,7 +36,7 @@ func (cr *customReply) GetError() error {
 }
 
 func echo(req *restik.Request) (*string, error) {
-	msg, _ := req.Vars.String("msg")
+	msg := req.Vars.String("msg")
 	if msg == "error" {
 		return nil, errors.New("error in echo")
 	}
