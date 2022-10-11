@@ -50,9 +50,9 @@ type Route struct {
 // NewRoute create new route by http method and endpoint.
 // fn can be one of
 //
-//      func([*Request | [,] *struct]) [*struct | [,] error]
-//      func(http.ResponseWriter, *http.Request)
-//      func(rest.ResponseWriter, *rest.Request)
+//	func([*Request | [,] *struct]) [*struct | [,] error]
+//	func(http.ResponseWriter, *http.Request)
+//	func(rest.ResponseWriter, *rest.Request)
 func NewRoute(method, endpoint string, fn interface{}) *Route {
 	if httpHndl, ok := fn.(func(http.ResponseWriter, *http.Request)); ok {
 		return &Route{
@@ -114,6 +114,9 @@ func parseOutput(fnType reflect.Type) reflect.Type {
 		panic("Function arguments count must be 2 or less")
 	}
 	elem := fnType.Out(0)
+	if elem.String() == "error" {
+		return nil
+	}
 	if elem.Kind() == reflect.Ptr {
 		elem = elem.Elem()
 	}
