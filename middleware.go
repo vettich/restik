@@ -34,3 +34,11 @@ func (mw *CorsMiddleware) Middleware(next HandlerFunc) HandlerFunc {
 		next(w, r)
 	}
 }
+
+type funcMiddleware struct {
+	f func(next HandlerFunc) HandlerFunc
+}
+
+func (fm *funcMiddleware) Middleware(next HandlerFunc) HandlerFunc {
+	return fm.f(next)
+}

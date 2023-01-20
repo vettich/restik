@@ -94,6 +94,13 @@ func (r *Router) Use(middlewares ...Middleware) *Router {
 	return r
 }
 
+func (r *Router) UseFunc(middlewareFuncs ...func(HandlerFunc) HandlerFunc) *Router {
+	for _, f := range middlewareFuncs {
+		r.middlewares = append(r.middlewares, &funcMiddleware{f})
+	}
+	return r
+}
+
 func (r *Router) ServeHTTP(hw http.ResponseWriter, hr *http.Request) {
 	handle := r.routeHandler
 	for i := len(r.middlewares) - 1; i >= 0; i-- {
