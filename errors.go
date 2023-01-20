@@ -61,6 +61,18 @@ func NewNotFoundError(args ...string) Error {
 	return NewError(parseErrorArgs(http.StatusNotFound, "not_found", "Not found", args...))
 }
 
+// NewInternalError return error with BadRequest status
+//
+// Using:
+//		NewInternalError()
+// or
+//		NewInternalError(message)
+// or
+//		NewInternalError(code, message)
+func NewInternalError(args ...string) Error {
+	return NewError(parseErrorArgs(http.StatusInternalServerError, "internal_error", "Intertal Server Error", args...))
+}
+
 // Error implement error interface
 func (err errorImpl) Error() string {
 	return fmt.Sprintf("[%d] %s", err.Status, err.Msg)
